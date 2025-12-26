@@ -1,0 +1,77 @@
+name: Backend
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+  pull_request:
+    branches: [ main ]
+    paths:
+      - 'backend/**'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: pgvector/pgvector:pg16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: slowburn_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      redis:
+        image: redis:7
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: Set up Python 3.11
+      uses: actions/setup-python@v5
+      with:
+        python-version: "3.11"
+
+    - name: Install dependencies
+      working-directory: ./backend
+      run: |
+        python -m pip install --upgrade pip
+        pip install -e ".[dev]"
+
+    - name: Run Linters
+      working-directory: ./backend
+      run: |
+        ruff check .
+        black --check .
+        mypy .
+
+    - name: Run Tests
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/slowburn_test
+        REDIS_URL: redis://localhost:6379/0
+        SECRET_KEY: test_secret_key
+      run: |
+        pytest
+
+    - name: Check Migrations (Dry Run)
+      working-directory: ./backend
+      env:
+        DATABASE_URL: postgresql+asyncpg://postgres:postgres@localhost:5432/slowburn_test
+        REDIS_URL: redis://localhost:6379/0
+      run: |
+        # Ensure we can upgrade to head without error
+        alembic upgrade head
