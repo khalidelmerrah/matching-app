@@ -10,19 +10,19 @@ down: ## Stop services
 	docker-compose -f infra/docker-compose.yml down
 
 test: ## Run backend tests
-	cd backend && pytest
+	cd backend && python -m pytest
 
 fmt: ## Run code formatters
-	cd backend && ruff format . && black .
+	cd backend && python -m ruff format . && python -m black .
 
 lint: ## Run linters
-	cd backend && ruff check . && mypy .
+	cd backend && python -m ruff check . && python -m mypy .
 
 migrate: ## Run database migrations
-	cd backend && alembic upgrade head
+	cd backend && python -m alembic upgrade head
 
 makemigrations: ## Create new migration (usage: make makemigrations message="...")
-	cd backend && alembic revision --autogenerate -m "$(message)"
+	cd backend && python -m alembic revision --autogenerate -m "$(message)"
 
 smoke: ## Boot infra, migrate, and run tests
 	$(MAKE) up

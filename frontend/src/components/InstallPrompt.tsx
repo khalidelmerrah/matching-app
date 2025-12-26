@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Share, DivideSquare } from "lucide-react"; // Using DivideSquare as placeholder for "Add to Home Screen" icon if needed, or just generic
+import { Share } from "lucide-react"; // Using DivideSquare as placeholder for "Add to Home Screen" icon if needed, or just generic
 
 export function InstallPrompt() {
     const [showPrompt, setShowPrompt] = useState(false);

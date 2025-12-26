@@ -1,6 +1,7 @@
 import logging
 import sys
 import json
+from pathlib import Path
 from datetime import datetime
 
 class JSONFormatter(logging.Formatter):
@@ -21,6 +22,13 @@ class JSONFormatter(logging.Formatter):
 def setup_logging():
     root_logger = logging.getLogger()
     root_logger.setLevel(logging.INFO)
+
+    # File Handler
+    logs_dir = Path("logs")
+    logs_dir.mkdir(exist_ok=True)
+    file_handler = logging.FileHandler(logs_dir / "app.log")
+    file_handler.setFormatter(JSONFormatter())
+    root_logger.addHandler(file_handler)
 
     handler = logging.StreamHandler(sys.stdout)
     handler.setFormatter(JSONFormatter())

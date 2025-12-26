@@ -6,7 +6,7 @@ from redis.asyncio import Redis
 from app.db.session import get_session
 from app.db.redis import get_redis_pool
 from app.services.turn_budget import TurnBudgetService
-from app.db.models import User
+from app.models import User  # <--- FIXED: Was app.db.models
 from uuid import UUID
 
 # Reusable dependencies
@@ -38,6 +38,7 @@ async def get_current_user_stub(
         raise HTTPException(status_code=401, detail="Invalid User ID format")
         
     # Mock user model for type safety in endpoints
+    # Note: We construct a minimal User. In a real app, you'd query the DB here.
     user = User(id=uid, phone="stub", role="user") 
     return user
 

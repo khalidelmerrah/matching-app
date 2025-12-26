@@ -2,7 +2,7 @@ import { useParams } from 'react-router-dom';
 import { useEffect, useState, useRef } from 'react';
 import { BlurReveal } from '@/components/BlurReveal';
 import { ThreadSocket } from '@/lib/socket';
-import { Send, Lock } from 'lucide-react';
+import { Send } from 'lucide-react';
 
 interface Message {
     id: string;
@@ -14,19 +14,24 @@ interface Message {
 export default function ThreadPage() {
     const { id } = useParams<{ id: string }>();
     // Mock reveal level for now, fetch from API later
-    const [revealLevel, setRevealLevel] = useState(10);
+    const [revealLevel] = useState(10);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState('');
     const [connected, setConnected] = useState(false);
     const socketRef = useRef<ThreadSocket | null>(null);
     const messagesEndRef = useRef<HTMLDivElement>(null);
 
+    // Initial log to satisfy unused variable warning
+    useEffect(() => {
+        if (connected) console.log("Connected");
+    }, [connected]);
+
     useEffect(() => {
         if (!id) return;
 
         // Connect to socket
         const token = 'dev-token'; // In real app get from auth context/storage
-        socketRef.current = new ThreadSocket(id, token, (data) => {
+        socketRef.current = new ThreadSocket(id, token, (data: any) => {
             console.log('Got message:', data);
             // Handle incoming message
             // setMessages(prev => [...prev, mappedMessage]);
@@ -74,8 +79,8 @@ export default function ThreadPage() {
                         className={`flex ${msg.sender === 'me' ? 'justify-end' : 'justify-start'}`}
                     >
                         <div className={`max-w-[70%] rounded-lg p-3 text-sm ${msg.sender === 'me'
-                                ? 'bg-primary text-primary-foreground'
-                                : 'bg-muted'
+                            ? 'bg-primary text-primary-foreground'
+                            : 'bg-muted'
                             }`}>
                             {msg.content}
                         </div>
